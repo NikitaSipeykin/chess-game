@@ -24,6 +24,10 @@ public class GamePanel extends JPanel implements Runnable {
   public static final int BLACK = 1;
   int currentColor = WHITE;
 
+  //BOOLEANS
+  boolean canMove;
+  boolean validSquare;
+
   public GamePanel() {
     setPreferredSize(new Dimension(WIDTH, HEIGHT));
     setBackground(Color.black);
@@ -123,20 +127,43 @@ public class GamePanel extends JPanel implements Runnable {
        }
     }
 
+
+    ///MOUSE BUTTON RELEASED///
     if (!mouse.pressed){
       if (activePiece != null){
-        activePiece.updatePosition();
-        activePiece = null;
+        if (validSquare){
+          //MOVE CONFIRMED
+          copyPieces(simPieces, pieces);
+          activePiece.updatePosition();
+        }else {
+          copyPieces(pieces, simPieces);
+          activePiece.resetPosition();
+          activePiece = null;
+        }
       }
     }
   }
 
   private void simulate() {
+    canMove = false;
+    validSquare = false;
+
+    copyPieces(pieces, simPieces);
+
     activePiece.x = mouse.x - Board.HALF_SQUARE_SIZE;
     activePiece.y = mouse.y - Board.HALF_SQUARE_SIZE;
 
     activePiece.col = activePiece.getCol(activePiece.x);
     activePiece.row = activePiece.getRow(activePiece.y);
+
+    if (activePiece.canMove(activePiece.col, activePiece.row)){
+      canMove = true;
+
+      if (activePiece.hittingPiece != null){
+        simPieces.remove(activePiece.hittingPiece.getIndex());
+      }
+      validSquare = true;
+    }
   }
 
   @Override
@@ -152,11 +179,13 @@ public class GamePanel extends JPanel implements Runnable {
       p.draw(g2);
     }
     if (activePiece != null){
-      g2.setColor(Color.white);
-      g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
-      g2.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE,
-          Board.SQUARE_SIZE, Board.SQUARE_SIZE);
-      g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+      if (canMove){
+        g2.setColor(Color.white);
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+        g2.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE,
+            Board.SQUARE_SIZE, Board.SQUARE_SIZE);
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+      }
       activePiece.draw(g2);
     }
   }
