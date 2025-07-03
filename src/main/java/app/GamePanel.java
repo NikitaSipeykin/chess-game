@@ -12,10 +12,12 @@ public class GamePanel extends JPanel implements Runnable {
   final int FPS = 60;
   Thread gameThread;
   Board board = new Board();
+  Mouse mouse = new Mouse();
 
   //PIECES
   public static ArrayList<Piece> pieces = new ArrayList<>();
   public static ArrayList<Piece> simPieces = new ArrayList<>();
+  Piece activePiece;
 
   //COLOR
   public static final int WHITE = 0;
@@ -25,6 +27,9 @@ public class GamePanel extends JPanel implements Runnable {
   public GamePanel() {
     setPreferredSize(new Dimension(WIDTH, HEIGHT));
     setBackground(Color.black);
+
+    addMouseMotionListener(mouse);
+    addMouseListener(mouse);
 
     setPieces();
     copyPieces(pieces, simPieces );
@@ -37,40 +42,40 @@ public class GamePanel extends JPanel implements Runnable {
 
   public void setPieces(){
     //WHITE TEAM
-    pieces.add(new Pawn(WHITE, 0, 6));
-    pieces.add(new Pawn(WHITE, 1, 6));
-    pieces.add(new Pawn(WHITE, 2, 6));
-    pieces.add(new Pawn(WHITE, 3, 6));
-    pieces.add(new Pawn(WHITE, 4, 6));
-    pieces.add(new Pawn(WHITE, 5, 6));
-    pieces.add(new Pawn(WHITE, 6, 6));
-    pieces.add(new Pawn(WHITE, 7, 6));
-    pieces.add(new Rook(WHITE, 0, 7));
-    pieces.add(new Rook(WHITE, 7, 7));
-    pieces.add(new Knight(WHITE, 1, 7));
-    pieces.add(new Knight(WHITE, 6, 7));
-    pieces.add(new Bishop(WHITE, 2, 7));
-    pieces.add(new Bishop(WHITE, 5, 7));
-    pieces.add(new Queen(WHITE, 3, 7));
-    pieces.add(new King(WHITE, 4, 7));
+    pieces.add(new Pawn(0, 6, WHITE));
+    pieces.add(new Pawn(1, 6, WHITE));
+    pieces.add(new Pawn(2, 6, WHITE));
+    pieces.add(new Pawn(3, 6, WHITE));
+    pieces.add(new Pawn( 4, 6, WHITE));
+    pieces.add(new Pawn(5, 6, WHITE));
+    pieces.add(new Pawn(6, 6, WHITE));
+    pieces.add(new Pawn( 7, 6, WHITE));
+    pieces.add(new Rook(0, 7, WHITE));
+    pieces.add(new Rook( 7, 7, WHITE));
+    pieces.add(new Knight(1, 7, WHITE));
+    pieces.add(new Knight( 6, 7, WHITE));
+    pieces.add(new Bishop(2, 7, WHITE));
+    pieces.add(new Bishop(5, 7, WHITE));
+    pieces.add(new Queen(3, 7, WHITE));
+    pieces.add(new King(4, 7, WHITE));
 
     //BLACK TEAM
-    pieces.add(new Pawn(BLACK, 0, 1));
-    pieces.add(new Pawn(BLACK, 1, 1));
-    pieces.add(new Pawn(BLACK, 2, 1));
-    pieces.add(new Pawn(BLACK, 3, 1));
-    pieces.add(new Pawn(BLACK, 4, 1));
-    pieces.add(new Pawn(BLACK, 5, 1));
-    pieces.add(new Pawn(BLACK, 6, 1));
-    pieces.add(new Pawn(BLACK, 7, 1));
-    pieces.add(new Rook(BLACK, 0, 0));
-    pieces.add(new Rook(BLACK, 7, 0));
-    pieces.add(new Knight(BLACK, 1, 0));
-    pieces.add(new Knight(BLACK, 6, 0));
-    pieces.add(new Bishop(BLACK, 2, 0));
-    pieces.add(new Bishop(BLACK, 5, 0));
-    pieces.add(new Queen(BLACK, 3, 0));
-    pieces.add(new King(BLACK, 4, 0));
+    pieces.add(new Pawn(0, 1, BLACK));
+    pieces.add(new Pawn( 1, 1, BLACK));
+    pieces.add(new Pawn( 2, 1, BLACK));
+    pieces.add(new Pawn( 3, 1, BLACK));
+    pieces.add(new Pawn(4, 1, BLACK));
+    pieces.add(new Pawn(5, 1, BLACK));
+    pieces.add(new Pawn(6, 1, BLACK));
+    pieces.add(new Pawn(7, 1, BLACK));
+    pieces.add(new Rook(0, 0, BLACK));
+    pieces.add(new Rook(7, 0, BLACK));
+    pieces.add(new Knight(1, 0, BLACK));
+    pieces.add(new Knight(6, 0, BLACK));
+    pieces.add(new Bishop(2, 0, BLACK));
+    pieces.add(new Bishop(5, 0, BLACK));
+    pieces.add(new Queen(3, 0, BLACK));
+    pieces.add(new King(4, 0, BLACK));
   }
 
   private void copyPieces(ArrayList<Piece> source, ArrayList<Piece> target){
@@ -82,7 +87,7 @@ public class GamePanel extends JPanel implements Runnable {
 
   @Override
   public void run() {
-    double drawInterval = 1000000000 / FPS;
+    double drawInterval = 1000000000d / FPS;
     double delta = 0;
     long lastTime = System.nanoTime();
     long currentTime;
@@ -102,7 +107,36 @@ public class GamePanel extends JPanel implements Runnable {
   }
 
   public void update() {
+    if (mouse.pressed){
+       if (activePiece == null){
+         for (Piece piece :
+             simPieces) {
+           if (piece.color == currentColor
+               && piece.col == mouse.x / Board.SQUARE_SIZE
+               && piece.row == mouse.y / Board.SQUARE_SIZE){
+             activePiece = piece;
+           }
+         }
+       }
+       else {
+         simulate();
+       }
+    }
 
+    if (!mouse.pressed){
+      if (activePiece != null){
+        activePiece.updatePosition();
+        activePiece = null;
+      }
+    }
+  }
+
+  private void simulate() {
+    activePiece.x = mouse.x - Board.HALF_SQUARE_SIZE;
+    activePiece.y = mouse.y - Board.HALF_SQUARE_SIZE;
+
+    activePiece.col = activePiece.getCol(activePiece.x);
+    activePiece.row = activePiece.getRow(activePiece.y);
   }
 
   @Override
@@ -116,6 +150,14 @@ public class GamePanel extends JPanel implements Runnable {
     for (Piece p :
         simPieces) {
       p.draw(g2);
+    }
+    if (activePiece != null){
+      g2.setColor(Color.white);
+      g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+      g2.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE,
+          Board.SQUARE_SIZE, Board.SQUARE_SIZE);
+      g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+      activePiece.draw(g2);
     }
   }
 
