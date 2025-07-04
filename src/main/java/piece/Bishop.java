@@ -1,10 +1,12 @@
 package piece;
 
 import app.GamePanel;
+import app.Type;
 
 public class Bishop extends Piece{
   public Bishop(int col, int row, int color) {
     super(col, row, color);
+    type = Type.BISHOP;
 
     if (color == GamePanel.WHITE){
       image = getImage("/simple_chess_pieces/w-bishop");

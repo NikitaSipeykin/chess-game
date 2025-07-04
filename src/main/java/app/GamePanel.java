@@ -194,6 +194,12 @@ public class GamePanel extends JPanel implements Runnable {
   private void changePlayer(){
     if (currentColor == WHITE){
       currentColor = BLACK;
+      for (Piece piece :
+          pieces) {
+        if (piece.color == BLACK){
+          piece.twoStepped = false;
+        }
+      }
     }else currentColor = WHITE;
 
     activePiece = null;

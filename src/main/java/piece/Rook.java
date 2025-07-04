@@ -1,10 +1,12 @@
 package piece;
 
 import app.GamePanel;
+import app.Type;
 
 public class Rook extends Piece{
   public Rook(int col, int row, int color) {
     super(col, row, color);
+    type = Type.ROOK;
 
     if (color == GamePanel.WHITE){
       image = getImage("/simple_chess_pieces/w-rook");
