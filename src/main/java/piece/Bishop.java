@@ -12,4 +12,14 @@ public class Bishop extends Piece{
       image = getImage("/simple_chess_pieces/b-bishop");
     }
   }
+
+  @Override
+  public boolean canMove(int targetCol, int targetRow) {
+    if (isWithinBoard(targetCol, targetRow) && !isSameSquare(targetCol, targetRow)){
+      if (Math.abs(targetCol - preCol) == Math.abs(targetRow - preRow)){
+        return isValidSquare(targetCol, targetRow) && !pieceIsOnDiagonalLine(targetCol, targetRow);
+      }
+    }
+    return false;
+  }
 }

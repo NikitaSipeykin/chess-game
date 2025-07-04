@@ -12,4 +12,31 @@ public class Pawn extends Piece{
       image = getImage("/simple_chess_pieces/b-pawn");
     }
   }
+
+  @Override
+  public boolean canMove(int targetCol, int targetRow) {
+    if (isWithinBoard(targetCol, targetRow) && !isSameSquare(targetCol, targetRow)){
+      int moveValue;
+      if (color == GamePanel.WHITE){
+        moveValue = -1;
+      }else {
+        moveValue = 1;
+      }
+
+      hittingPiece = getHittingPosition(targetCol, targetRow);
+
+      if (targetCol == preCol && targetRow == preRow + moveValue && hittingPiece == null){
+        return true;
+      }
+      if (targetCol == preCol && targetRow == preRow + moveValue * 2  && hittingPiece == null && !moved &&
+          !pieceIsOnStraightLine(targetCol, targetRow)){
+        return true;
+      }
+      if (Math.abs(targetCol - preCol) == 1 && targetRow == preRow + moveValue && hittingPiece != null &&
+          hittingPiece.color != color){
+        return true;
+      }
+    }
+    return false;
+  }
 }

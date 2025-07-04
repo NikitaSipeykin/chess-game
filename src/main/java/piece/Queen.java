@@ -12,4 +12,18 @@ public class Queen extends Piece{
       image = getImage("/simple_chess_pieces/b-queen");
     }
   }
+
+  @Override
+  public boolean canMove(int targetCol, int targetRow) {
+    if (isWithinBoard(targetCol, targetRow) && !isSameSquare(targetCol, targetRow)){
+      if (targetCol == preCol && targetRow == preRow){
+        return isValidSquare(targetCol, targetRow) && !pieceIsOnStraightLine(targetCol, targetRow);
+      }
+    }
+
+    if (Math.abs(targetCol - preCol) == Math.abs(targetRow - preRow)){
+      return isValidSquare(targetCol, targetRow) && !pieceIsOnStraightLine(targetCol, targetRow);
+    }
+    return false;
+  }
 }
