@@ -181,6 +181,18 @@ public class GamePanel extends JPanel implements Runnable {
     }
   }
 
+  private boolean isIllegal(Piece king){
+    if (king.type == Type.KING){
+      for (Piece piece :
+          simPieces) {
+        if (piece != king && piece.color != king.color && piece.canMove(king.col, king.row)){
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   private void simulate() {
     canMove = false;
     validSquare = false;
@@ -207,7 +219,9 @@ public class GamePanel extends JPanel implements Runnable {
       }
       checkCastling();
 
-      validSquare = true;
+      if (!isIllegal(activePiece)){
+        validSquare = true;
+      }
     }
   }
 
@@ -258,17 +272,25 @@ public class GamePanel extends JPanel implements Runnable {
     //BOARD
     board.draw(g2);
 
-    for (Piece p :
-        simPieces) {
+    for (Piece p : simPieces) {
       p.draw(g2);
     }
     if (activePiece != null){
       if (canMove){
-        g2.setColor(Color.white);
-        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
-        g2.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE,
-            Board.SQUARE_SIZE, Board.SQUARE_SIZE);
-        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+        if (isIllegal(activePiece)){
+          g2.setColor(Color.gray);
+          g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+          g2.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE,
+              Board.SQUARE_SIZE, Board.SQUARE_SIZE);
+          g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+        }else {
+          g2.setColor(Color.white);
+          g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+          g2.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE,
+              Board.SQUARE_SIZE, Board.SQUARE_SIZE);
+          g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+        }
+
       }
       activePiece.draw(g2);
     }
