@@ -9,9 +9,9 @@ public class Queen extends Piece{
     type = Type.QUEEN;
 
     if (color == GamePanel.WHITE){
-      image = getImage("/simple_chess_pieces/w-queen");
+      image = getImage("/pixel_pieces/w-queen");
     }else {
-      image = getImage("/simple_chess_pieces/b-queen");
+      image = getImage("/pixel_pieces/b-queen");
     }
   }
 
